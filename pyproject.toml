@@ -17,9 +17,8 @@ requests = "^2.25.1"
 singer-python = "^5.9.1"
 sendgrid = "^6.7.0"
 boto3 = "^1.17.79"
-python-dotenv = "^0.15.0"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev-dependencies]
 coverage = "^5.4"
 pylint = "^2.6.0"
 pytest = "^6.2.2"
@@ -27,6 +26,7 @@ pytest-cov = "^2.11.1"
 coveralls = "^3.0.0"
 pytest-mock = "^3.5.1"
 pytest-vcr = "^1.0.2"
+python-dotenv = "^0.15.0"
 vcrpy = "^4.1.1"
 black = "^21.5b1"
 moto = {extras = ["s3"], version = "^2.0.8"}
