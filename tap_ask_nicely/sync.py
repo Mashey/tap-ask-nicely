@@ -99,7 +99,7 @@ def sync(config, state, catalog):
     }
 
     # Comment out for local runs
-    if config["slack_notifications"] == True:
+    if config.get("slack_notifications"):
         SlackMessenger.send_message(
             run_id=run_id,
             start_time=pipeline_start,
@@ -108,6 +108,6 @@ def sync(config, state, catalog):
             comments='\n'.join(stream_comments),
         )
 
-    if config["email_notifications"] == True:
+    if config.get("email_notifications"):
         sg = SendgridMessenger(notification_data)
         sg.send_message()
