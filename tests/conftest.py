@@ -5,9 +5,6 @@ from tap_ask_nicely.client import AskNicelyClient
 from tap_ask_nicely.storage import StorageHandler
 
 import os
-from dotenv import load_dotenv
-
-load_dotenv()
 
 
 @pytest.fixture
