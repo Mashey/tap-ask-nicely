@@ -19,7 +19,7 @@ sendgrid = "^6.7.0"
 boto3 = "^1.17.79"
 python-dotenv = "^0.15.0"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.dev.dependencies]
 coverage = "^5.4"
 pylint = "^2.6.0"
 pytest = "^6.2.2"
