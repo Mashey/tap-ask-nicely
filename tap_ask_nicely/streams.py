@@ -120,7 +120,7 @@ class SentStatistics(Stream):
 
 class HistoricalStats(Stream):
     tap_stream_id = "historical_stats"
-    key_properties = []
+    key_properties = ["date"]
     replication_key = ""
     object_type = "HISTORICAL_STATS"
     replication_method = "INCREMENTAL"
@@ -140,9 +140,9 @@ class HistoricalStats(Stream):
         while start_from != datetime.strftime(datetime.now(), "%Y-%m-%d"):
             response = self.client.fetch_historical_stats(date=start_from)
             sent_stats = response["data"]
-            if sent_stats != []:
-                for stat in sent_stats:
-                    yield stat
+            for stat in sent_stats:
+                stat["date"] = datetime(int(stat.pop("year")), int(stat.pop("month")), int(stat.pop("day"))).strftime("%Y-%m-%d")
+                yield stat
             start_from = increment_date_by_day(start_from)
 
         singer.write_bookmark(
