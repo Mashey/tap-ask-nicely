@@ -71,6 +71,11 @@ class Response(Stream):
             )
             records = res.get("data", [])
             for record in records:
+                record["sent"] = datetime.fromtimestamp(record["sent"])
+                record["opened"] = datetime.fromtimestamp(record["opened"])
+                record["responded"] = datetime.fromtimestamp(record["responded"])
+                record["lastemailed"] = datetime.fromtimestamp(record["lastemailed"])
+                record["created"] = datetime.fromtimestamp(record["created"])
                 yield record
                 contact_ids.add(record["contact_id"])
             page = page + 1
