@@ -67,6 +67,7 @@ class AuditLogs:
                 "run_time": {"type": ["null", "number"]},
                 "comments": {"type": ["null", "string"]},
             },
+            "primary_key": ["run_id"]
         }
         return schema_base
 
