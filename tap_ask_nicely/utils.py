@@ -86,7 +86,7 @@ class AuditLogs:
                 "metadata": {"inclusion": "available"},
             },
             {
-                "breadcrumb": ["properties", "stream_stream"],
+                "breadcrumb": ["properties", "stream_name"],
                 "metadata": {"inclusion": "available"},
             },
             {
