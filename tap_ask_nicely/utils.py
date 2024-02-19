@@ -112,7 +112,7 @@ class AuditLogs:
             {
                 "breadcrumb": [],
                 "metadata": {
-                    "table-key-properties": ["run_id"] 
+                    "key-properties": ["run_id"] 
                 }
             }
         ]
