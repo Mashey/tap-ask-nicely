@@ -109,6 +109,12 @@ class AuditLogs:
                 "breadcrumb": ["properties", "comments"],
                 "metadata": {"inclusion": "available"},
             },
+            {
+                "breadcrumb": [],
+                "metadata": {
+                    "table-key-properties": ["run_id"] 
+                }
+            }
         ]
 
         return metadata
