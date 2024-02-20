@@ -52,128 +52,6 @@ class SlackMessenger:
     def build_url() -> str:
         return f'{SlackMessenger.slack_base}/{os.getenv("SLACK_WEBHOOK_ADDRESS")}'
 
-
-class AuditLogs:
-    def audit_schema() -> dict:
-        schema_base = {
-            "type": ["null", "object"],
-            "additionalProperties": False,
-            "properties": {
-                "run_id": {"type": ["null", "integer"]},
-                "stream_name": {"type": ["null", "string"]},
-                "batch_start": {"type": ["null", "string"], "format": "date-time"},
-                "batch_end": {"type": ["null", "string"], "format": "date-time"},
-                "records_synced": {"type": ["null", "integer"]},
-                "run_time": {"type": ["null", "number"]},
-                "comments": {"type": ["null", "string"]},
-            },
-            "required": ["run_id"]
-        }
-        return schema_base
-
-    def schema_metadata():
-        metadata = [
-            {
-                "breadcrumb": [],
-                "metadata": {
-                    "table-key-properties": [],
-                    "forced-replication-method": "FULL_TABLE",
-                    "inclusion": "available",
-                },
-            },
-            {
-                "breadcrumb": ["properties", "run_id"],
-                "metadata": {"inclusion": "available"},
-            },
-            {
-                "breadcrumb": ["properties", "stream_name"],
-                "metadata": {"inclusion": "available"},
-            },
-            {
-                "breadcrumb": ["properties", "batch_start"],
-                "metadata": {"inclusion": "available"},
-            },
-            {
-                "breadcrumb": ["properties", "batch_end"],
-                "metadata": {"inclusion": "available"},
-            },
-            {
-                "breadcrumb": ["properties", "records_synced"],
-                "metadata": {"inclusion": "available"},
-            },
-            {
-                "breadcrumb": ["properties", "run_time"],
-                "metadata": {"inclusion": "available"},
-            },
-            {
-                "breadcrumb": ["properties", "comments"],
-                "metadata": {"inclusion": "available"},
-            },
-            {
-                "breadcrumb": [],
-                "metadata": {
-                    "key-properties": ["run_id"] 
-                }
-            }
-        ]
-
-        return metadata
-
-    def audit_record(
-        run_id: int,
-        stream_name: str,
-        batch_start: str,
-        run_time: int,
-        batch_end: str = datetime.now(),
-        records_synced: int = 0,
-        comments: str = "",
-    ) -> dict:
-
-        audit = {
-            "run_id": run_id,
-            "stream_name": stream_name,
-            "batch_start": batch_start,
-            "batch_end": batch_end,
-            "records_synced": records_synced,
-            "run_time": run_time,
-            "comments": comments,
-        }
-        return audit
-
-    def write_audit_log(
-        run_id: int,
-        stream_name: str,
-        batch_start: str,
-        batch_end: str = datetime.now(),
-        records_synced: int = 0,
-        run_time=int,
-        comments: str = "",
-    ):
-        singer.write_schema(
-            "audit_log",
-            AuditLogs.audit_schema(),
-            [],
-            "",
-        )
-        audit_log = Transformer().transform(
-            AuditLogs.audit_record(
-                run_id=run_id,
-                stream_name=stream_name,
-                batch_start=batch_start,
-                batch_end=batch_end,
-                records_synced=records_synced,
-                run_time=run_time,
-                comments=comments,
-            ),
-            AuditLogs.audit_schema(),
-            metadata.to_map(AuditLogs.schema_metadata()),
-        )
-        singer.write_record(
-            "audit_log",
-            audit_log,
-        )
-
-
 class EmailMessenger:
     def __init__(self, sync_data: dict) -> None:
         self.data = sync_data
@@ -310,3 +188,22 @@ class GmailMessenger(EmailMessenger):
                 LOGGER.error(f"There was an issue sending the email: {error}")
 
                 return f"There was an issue sending the email: {error}"
+
+def write_audit_log(run_id: int, stream_name: str, batch_start: str,
+                    batch_end: str = datetime.now(),
+                    records_synced: int = 0, run_time=int,
+                    comments: str = ""):
+    with Counter('audit_log_written') as counter:
+        with Timer('audit_log_write_time'):
+            audit_data = {
+                "run_id": run_id,
+                "stream_name": stream_name,
+                "batch_start": batch_start,
+                "batch_end": batch_end,
+                "records_synced": records_synced,
+                "run_time": run_time,
+                "comments": comments,
+            }
+            email_messenger = SendgridMessenger(audit_data)
+            email_messenger.send_message()
+            counter.increment()
