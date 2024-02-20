@@ -2,13 +2,7 @@
   "type": ["null", "object"],
   "additionalProperties": false,
   "properties": {
-    "year": {
-      "type": ["null", "string"]
-    },
-    "month": {
-      "type": ["null", "string"]
-    },
-    "day": {
+    "date": {
       "type": ["null", "string"]
     },
     "weekday": {

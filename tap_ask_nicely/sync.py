@@ -4,7 +4,7 @@ import singer
 from singer import Transformer, metadata
 from tap_ask_nicely.client import AskNicelyClient
 from tap_ask_nicely.streams import STREAMS
-from tap_ask_nicely.utils import AuditLogs, SendgridMessenger, SlackMessenger, GmailMessenger
+from tap_ask_nicely.utils import SendgridMessenger, SlackMessenger, GmailMessenger
 from datetime import date, datetime
 import time
 
@@ -63,27 +63,10 @@ def sync(config, state, catalog):
                     singer.write_state(state, tap_stream_id)
 
                 batch_stop = datetime.now().strftime("%Y-%m-%d, %H:%M:%S")
-                AuditLogs.write_audit_log(
-                    run_id=run_id,
-                    stream_name=tap_stream_id,
-                    batch_start=batch_start,
-                    batch_end=batch_stop,
-                    records_synced=record_count,
-                    run_time=(time.perf_counter() - start_time),
-                )
 
             except Exception as e:
                 stream_comments.append(f"{tap_stream_id.upper}: {e}")
                 batch_stop = datetime.now().strftime("%Y-%m-%d, %H:%M:%S")
-                AuditLogs.write_audit_log(
-                    run_id=run_id,
-                    stream_name=tap_stream_id,
-                    batch_start=batch_start,
-                    batch_end=batch_stop,
-                    records_synced=record_count,
-                    run_time=(time.perf_counter() - start_time),
-                    comments=e,
-                )
 
     state = singer.set_currently_syncing(state, None)
     singer.write_state(state)
@@ -99,7 +82,7 @@ def sync(config, state, catalog):
     }
 
     # Comment out for local runs
-    if config["slack_notifications"] == True:
+    if config.get("slack_notifications"):
         SlackMessenger.send_message(
             run_id=run_id,
             start_time=pipeline_start,
@@ -108,6 +91,6 @@ def sync(config, state, catalog):
             comments='\n'.join(stream_comments),
         )
 
-    if config["email_notifications"] == True:
+    if config.get("email_notifications"):
         sg = SendgridMessenger(notification_data)
         sg.send_message()
